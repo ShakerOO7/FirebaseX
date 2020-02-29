@@ -211,6 +211,8 @@ public class MainActivity extends AppCompatActivity {
                         Log.w(TAG, "signInWithCredential:failure", task.getException());
                         if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                             // The verification code entered was invalid
+                            //not appear
+                            //798654
                         }
                     }
                 });
