@@ -89,12 +89,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    try{
-                        contacts.add(new Contact(name, phone));
-                    }catch (Exception e){
-
-                    }
-                    /*String phoneI = "", nameI = "";
+                    String phoneI = "", nameI = "";
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
                         if (child.child("phone").getValue() != null) {
                             phoneI = child.child("phone").getValue().toString();
@@ -104,7 +99,7 @@ public class ChatActivity extends AppCompatActivity {
                         }
                     }
                     contacts.add(new Contact(nameI.equals("") ? name : nameI,
-                            phoneI.equals("") ? phone : phoneI));*/
+                            phoneI.equals("") ? phone : phoneI));
                 }
             }
 
