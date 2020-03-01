@@ -100,6 +100,7 @@ public class ChatActivity extends AppCompatActivity {
                     }
                     contacts.add(new Contact(nameI.equals("") ? name : nameI,
                             phoneI.equals("") ? phone : phoneI));
+                    
                 }
             }
 
