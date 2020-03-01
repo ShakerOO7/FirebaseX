@@ -18,9 +18,14 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
@@ -161,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
                 code.setVisibility(View.INVISIBLE);
                 nextBtn.setOnClickListener(ee -> {
                     verifyPhone();
+                    phoneET.setText("");
                 });
 
             }
@@ -171,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
                 TimeUnit.SECONDS,   // Unit of timeout
                 this,               // Activity (for callback binding)
                 mCallbacks);        // OnVerificationStateChangedCallbacks
-        phoneET.setText("");
+
 
     }
 
@@ -202,9 +208,29 @@ public class MainActivity extends AppCompatActivity {
 
                         FirebaseUser user = task.getResult().getUser();
                         if(user != null){
-                            //DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+                            FirebaseDatabase db = FirebaseDatabase.getInstance();
+                            final DatabaseReference ref = db.getReference("users").child(user.getUid());
+                            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if(!dataSnapshot.exists()){
+                                        Map<String, Object> userMap = new HashMap<>();
+                                        userMap.put("First Name", firstName.getText().toString().trim());
+                                        userMap.put("Last Name", lastName.getText().toString().trim());
+                                        userMap.put("Phone Number", phoneET.getText().toString().trim());
+                                        ref.updateChildren(userMap);
+                                    }
+                                    userIsLoggedIn();
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+
                         }
-                        userIsLoggedIn();
+
                         // ...
                     } else {
                         // Sign in failed, display a message and update the UI
