@@ -5,8 +5,11 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 
@@ -37,7 +40,17 @@ public class ContactsListAdapter extends RecyclerView.Adapter<ContactsListAdapte
         holder.name.setText(contacts.get(position).getName());
         holder.phone.setText(contacts.get(position).getPhone());
         holder.container.setOnClickListener(e -> {
-            this.context.startActivity(new Intent(this.context, Messaging.class));
+            FirebaseDatabase db = FirebaseDatabase.getInstance();
+            DatabaseReference ref = db.getReference().child("chats");
+            String key = ref.push().getKey();
+
+            String curUId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            String targetUId = contacts.get(position).getUId();
+            db.getReference().child("users").child(curUId).child("chats").child(key).setValue(true);
+            db.getReference().child("users").child(targetUId).child("chats").child(key).setValue(true);
+
+            this.context.startActivity(new Intent(this.context, MessagingActivity.class)
+                    .putExtra("key",key));
         });
     }
 
@@ -57,4 +70,5 @@ public class ContactsListAdapter extends RecyclerView.Adapter<ContactsListAdapte
             container = itemView.findViewById(R.id.container);
         }
     }
+
 }

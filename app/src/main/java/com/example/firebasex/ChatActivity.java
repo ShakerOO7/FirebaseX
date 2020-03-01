@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -15,6 +16,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public class ChatActivity extends AppCompatActivity {
 
     ArrayList<Contact> contacts = new ArrayList<>();
+    HashSet<String> contactsSet = new HashSet<>();
     RecyclerView contactsList;
     RecyclerView.Adapter adapter;
     RecyclerView.LayoutManager layoutManager;
@@ -33,8 +36,8 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         getPermissions();
-        loadContacts();
         initRecyclerView();
+        new Thread(this::loadContacts).start();
 
     }
 
@@ -67,10 +70,10 @@ public class ChatActivity extends AppCompatActivity {
                         phone = "+" + phone.substring(2);
                     }
                     if (!String.valueOf(phone.charAt(0)).equals("+")) {
-                        phone = getCountryISO() + phone;
+                        phone = getCountryISO() + phone.substring(1);
                     }
+                    Log.d("firebase test", "loadContacts: ");
                     addContact(name, phone);
-                    //contacts.add(new Contact(name, phone));
                 } catch (IndexOutOfBoundsException e) {
 
                 }
@@ -80,28 +83,40 @@ public class ChatActivity extends AppCompatActivity {
         if (cursor != null) {
             cursor.close();
         }
+
     }
 
     private void addContact(String name, String phone) {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users");
-        Query query = ref.orderByChild("phone").equalTo(phone);
+        Query query = ref.orderByChild("Phone Number").equalTo(phone);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    String phoneI = "", nameI = "";
+                    String phoneI = "", nameI = "", UId = "";
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
-                        if (child.child("phone").getValue() != null) {
-                            phoneI = child.child("phone").getValue().toString();
+                        UId = child.getKey();
+                        if (child.child("Phone Number").getValue() != null) {
+                            phoneI = child.child("Phone Number").getValue().toString();
                         }
-                        if (child.child("name").getValue() != null) {
-                            nameI = child.child("name").getValue().toString();
+                        if (child.child("First Name").getValue() != null
+                                && child.child("Last Name").getValue() != null) {
+                            nameI = child.child("First Name").getValue().toString() + " "
+                                    + child.child("Last Name").getValue().toString();
                         }
                     }
-                    contacts.add(new Contact(nameI.equals("") ? name : nameI,
-                            phoneI.equals("") ? phone : phoneI));
+                    Log.d("firebase test", "onDataChange: " + phoneI);
+                    synchronized (adapter){
+                    Contact contact = new Contact(nameI.equals("") ? name : nameI,
+                            phoneI.equals("") ? phone : phoneI, UId);
+                        if(!contactsSet.contains(phone)){
+                            contacts.add(contact);
+                            contactsSet.add(phone);
+                            adapter.notifyDataSetChanged();
+                        }
+                    }
+
                 }
-                //this is from shaker
             }
 
             @Override
