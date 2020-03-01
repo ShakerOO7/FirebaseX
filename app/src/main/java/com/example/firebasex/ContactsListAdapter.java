@@ -42,10 +42,19 @@ public class ContactsListAdapter extends RecyclerView.Adapter<ContactsListAdapte
         holder.container.setOnClickListener(e -> {
             FirebaseDatabase db = FirebaseDatabase.getInstance();
             DatabaseReference ref = db.getReference().child("chats");
-            String key = ref.push().getKey();
 
             String curUId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             String targetUId = contacts.get(position).getUId();
+
+            String key = "";
+
+            final String substring = curUId.substring(0, Math.min(12, curUId.length()));
+            final String substring1 = targetUId.substring(0, Math.min(12, targetUId.length()));
+            if(curUId.compareTo(targetUId) > 0)
+                key = substring + substring1;
+            else
+                key = substring1 + substring;
+
             db.getReference().child("users").child(curUId).child("chats").child(key).setValue(true);
             db.getReference().child("users").child(targetUId).child("chats").child(key).setValue(true);
 

@@ -40,6 +40,7 @@ public class MessagingActivity extends AppCompatActivity {
         new Thread(this::getChat).start();
 
         et = findViewById(R.id.message);
+        et.setSelection(0);
         send = findViewById(R.id.send);
         send.setOnClickListener(e -> {
             if(et.getText().toString() != ""){
