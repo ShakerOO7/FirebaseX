@@ -1,5 +1,6 @@
 package com.example.firebasex;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -188,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
         userIsLoggedIn();
         setup();
         setCallbacks();
+        getPermissions();
     }
 
     private void userIsLoggedIn() {
@@ -240,6 +242,12 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    private void getPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 1);
+        }
     }
 
 }

@@ -60,7 +60,8 @@ public class MessagingActivity extends AppCompatActivity {
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                tv.setText((String) dataSnapshot.child("First Name").getValue());
+                targetName = (String) dataSnapshot.child("First Name").getValue();
+                tv.setText(targetName);
             }
 
             @Override
@@ -87,7 +88,7 @@ public class MessagingActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    messages.add((String) myName + ": " + child.getValue());
+                    messages.add((String)child.getValue());
                     adapter.notifyDataSetChanged();
                 }
             }

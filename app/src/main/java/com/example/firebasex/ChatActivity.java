@@ -35,18 +35,12 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        getPermissions();
         initRecyclerView();
         new Thread(this::loadContacts).start();
 
     }
 
-    private void getPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS,
-                    Manifest.permission.WRITE_CONTACTS}, 1);
-        }
-    }
+
 
     private void loadContacts() {
         Cursor cursor = null;
