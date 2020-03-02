@@ -83,12 +83,12 @@ public class MessagingActivity extends AppCompatActivity {
     public void getChat() {
         chatKey = getIntent().getStringExtra("key");
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("chats").child(chatKey);
-        ref.addValueEventListener(new ValueEventListener() {
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    messagesList.smoothScrollToPosition(messages.size());
                     messages.add((String) child.getValue());
+                    messagesList.smoothScrollToPosition(messages.size()-1);
                     adapter.notifyDataSetChanged();
                 }
             }
@@ -111,7 +111,6 @@ public class MessagingActivity extends AppCompatActivity {
         messagesList.setHasFixedSize(true);
         messagesList.setNestedScrollingEnabled(false);
         layoutManager = new LinearLayoutManager(this);
-        //layoutManager.setReverseLayout(true);
         layoutManager.setStackFromEnd(true);
         layoutManager.setSmoothScrollbarEnabled(true);
         messagesList.setLayoutManager(layoutManager);

@@ -45,4 +45,5 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:20.1.0'
     implementation 'com.google.firebase:firebase-core:17.2.2'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation group: 'com.pubnub', name: 'pubnub-gson', version: '4.20.0'
 }
