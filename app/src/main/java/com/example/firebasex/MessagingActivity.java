@@ -103,6 +103,9 @@ public class MessagingActivity extends AppCompatActivity {
     public void addMessage(String message) {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("chats").child(chatKey);
         ref.push().setValue(myName + ": " + message);
+        messages.add(myName + ": " + message);
+        messagesList.smoothScrollToPosition(messages.size()-1);
+        adapter.notifyDataSetChanged();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
