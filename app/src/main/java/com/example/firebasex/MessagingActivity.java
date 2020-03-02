@@ -83,10 +83,11 @@ public class MessagingActivity extends AppCompatActivity {
     public void getChat() {
         chatKey = getIntent().getStringExtra("key");
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("chats").child(chatKey);
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    messagesList.smoothScrollToPosition(messages.size());
                     messages.add((String) child.getValue());
                     adapter.notifyDataSetChanged();
                 }
@@ -102,9 +103,6 @@ public class MessagingActivity extends AppCompatActivity {
     public void addMessage(String message) {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("chats").child(chatKey);
         ref.push().setValue(myName + ": " + message);
-        messagesList.smoothScrollToPosition(messages.size());
-        messages.add(myName + ": " + message);
-        adapter.notifyDataSetChanged();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
