@@ -2,6 +2,7 @@ package com.example.firebasex;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -31,6 +32,8 @@ import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -186,11 +189,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Thread th = new Thread(() -> getPermissions());
+        th.start();
         userIsLoggedIn();
         setup();
         setCallbacks();
-        getPermissions();
+        try {
+            th.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
+
+
 
     private void userIsLoggedIn() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -207,6 +218,7 @@ public class MainActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d(TAG, "signInWithCredential:success");
+                        Toast.makeText(MainActivity.this, "signInWithCredential:success",Toast.LENGTH_LONG).show();
 
                         FirebaseUser user = task.getResult().getUser();
                         if(user != null){
@@ -227,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                                    Toast.makeText(MainActivity.this, "Cancelled",Toast.LENGTH_LONG).show();
                                 }
                             });
 
@@ -237,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         // Sign in failed, display a message and update the UI
                         Log.w(TAG, "signInWithCredential:failure", task.getException());
+                        Toast.makeText(this, "signInWithCredential:failure",Toast.LENGTH_LONG).show();
                         if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                             // The verification code entered was invalid
                         }
@@ -245,9 +258,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 1);
+        }*/
+
+        if (Build.VERSION.SDK_INT >= 23) {
+
+            if (checkSelfPermission(android.Manifest.permission.READ_CONTACTS)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.e("testing", "Permission is granted");
+
+
+            } else {
+
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS,
+                        Manifest.permission.READ_CONTACTS,}, 1);
+                Log.e("testing", "Permission is revoked");
+            }
         }
     }
-
 }
