@@ -39,6 +39,9 @@ public class MessagingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_messaging);
         initRecyclerView();
         new Thread(this::getChat).start();
+
+        listen();
+
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -52,6 +55,8 @@ public class MessagingActivity extends AppCompatActivity {
 
             }
         });
+
+
 
         TextView tv = findViewById(R.id.target);
         targetName = getIntent().getStringExtra("targetUId");
@@ -100,12 +105,31 @@ public class MessagingActivity extends AppCompatActivity {
         });
     }
 
+    public void listen() {
+        chatKey = getIntent().getStringExtra("key");
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("chats").child(chatKey);
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String msg = "";
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    msg = (String) child.getValue();
+                }
+                messages.add(msg);
+                messagesList.smoothScrollToPosition(messages.size()-1);
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     public void addMessage(String message) {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("chats").child(chatKey);
         ref.push().setValue(myName + ": " + message);
-        messages.add(myName + ": " + message);
-        messagesList.smoothScrollToPosition(messages.size()-1);
-        adapter.notifyDataSetChanged();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
