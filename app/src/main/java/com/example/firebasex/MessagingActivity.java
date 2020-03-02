@@ -1,26 +1,23 @@
 package com.example.firebasex;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.rpc.BadRequest;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class MessagingActivity extends AppCompatActivity {
 
@@ -32,6 +29,7 @@ public class MessagingActivity extends AppCompatActivity {
     EditText et;
     Button send;
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,11 +41,9 @@ public class MessagingActivity extends AppCompatActivity {
         et.setSelection(0);
         send = findViewById(R.id.send);
         send.setOnClickListener(e -> {
-            if(et.getText().toString() != ""){
-                if(et.getText().toString() != ""){
-                    addMessage(et.getText().toString());
-                    et.setText("");
-                }
+            if (!et.getText().toString().equals("")) {
+                addMessage(et.getText().toString());
+                et.setText("");
             }
         });
 
@@ -59,8 +55,8 @@ public class MessagingActivity extends AppCompatActivity {
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for(DataSnapshot child:dataSnapshot.getChildren()){
-                    messages.add((String)child.getValue());
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    messages.add((String) child.getValue());
                     adapter.notifyDataSetChanged();
                 }
             }
@@ -72,20 +68,23 @@ public class MessagingActivity extends AppCompatActivity {
         });
     }
 
-    public void addMessage(String message){
+    public void addMessage(String message) {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("chats").child(chatKey);
         ref.push().setValue(message);
+        messagesList.smoothScrollToPosition(messages.size());
         messages.add(message);
         adapter.notifyDataSetChanged();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     public void initRecyclerView() {
         messagesList = findViewById(R.id.messagesList);
         messagesList.setHasFixedSize(true);
         messagesList.setNestedScrollingEnabled(false);
         layoutManager = new LinearLayoutManager(this);
-        layoutManager.setReverseLayout(true);
+        //layoutManager.setReverseLayout(true);
         layoutManager.setStackFromEnd(true);
+        layoutManager.setSmoothScrollbarEnabled(true);
         messagesList.setLayoutManager(layoutManager);
         adapter = new MessagesListAdapter(this, messages);
         messagesList.setAdapter(adapter);
