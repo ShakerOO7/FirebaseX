@@ -4,7 +4,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,6 +30,7 @@ public class MessagingActivity extends AppCompatActivity {
     LinearLayoutManager layoutManager;
     EditText et;
     Button send;
+    String myName, targetName;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -37,6 +40,34 @@ public class MessagingActivity extends AppCompatActivity {
         initRecyclerView();
         new Thread(this::getChat).start();
 
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                myName = (String) dataSnapshot.child("First Name").getValue();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        TextView tv = findViewById(R.id.target);
+        targetName = getIntent().getStringExtra("targetUId");
+        ref = FirebaseDatabase.getInstance().getReference("users").child(targetName);
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                tv.setText((String) dataSnapshot.child("First Name").getValue());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
         et = findViewById(R.id.message);
         et.setSelection(0);
         send = findViewById(R.id.send);
@@ -56,7 +87,7 @@ public class MessagingActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    messages.add((String) child.getValue());
+                    messages.add((String) myName + ": " + child.getValue());
                     adapter.notifyDataSetChanged();
                 }
             }
@@ -72,7 +103,7 @@ public class MessagingActivity extends AppCompatActivity {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("chats").child(chatKey);
         ref.push().setValue(message);
         messagesList.smoothScrollToPosition(messages.size());
-        messages.add(message);
+        messages.add(myName + ": " + message);
         adapter.notifyDataSetChanged();
     }
 

@@ -41,7 +41,6 @@ public class ContactsListAdapter extends RecyclerView.Adapter<ContactsListAdapte
         holder.phone.setText(contacts.get(position).getPhone());
         holder.container.setOnClickListener(e -> {
             FirebaseDatabase db = FirebaseDatabase.getInstance();
-            DatabaseReference ref = db.getReference().child("chats");
 
             String curUId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             String targetUId = contacts.get(position).getUId();
@@ -59,7 +58,7 @@ public class ContactsListAdapter extends RecyclerView.Adapter<ContactsListAdapte
             db.getReference().child("users").child(targetUId).child("chats").child(key).setValue(true);
 
             this.context.startActivity(new Intent(this.context, MessagingActivity.class)
-                    .putExtra("key",key));
+                    .putExtra("targetUId",targetUId).putExtra("key",key));
         });
     }
 
