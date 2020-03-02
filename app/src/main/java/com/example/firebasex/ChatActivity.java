@@ -85,7 +85,7 @@ public class ChatActivity extends AppCompatActivity {
     private void addContact(String name, String phone) {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users");
         Query query = ref.orderByChild("Phone Number").equalTo(phone);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {

@@ -39,7 +39,6 @@ public class MessagingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_messaging);
         initRecyclerView();
         new Thread(this::getChat).start();
-
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -88,7 +87,7 @@ public class MessagingActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    messages.add((String)child.getValue());
+                    messages.add((String) child.getValue());
                     adapter.notifyDataSetChanged();
                 }
             }
