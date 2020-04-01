@@ -42,8 +42,6 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-
-
     private void loadContacts() {
         Cursor cursor = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {

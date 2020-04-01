@@ -9,8 +9,8 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/contactList"
-        android:layout_width="398dp"
-        android:layout_height="686dp"
+        android:layout_width="401dp"
+        android:layout_height="730dp"
         android:layout_marginEnd="1dp"
         android:layout_marginStart="1dp"
         android:layout_marginTop="1dp"
